@@ -33,9 +33,7 @@ partnerRouter
   })
 
   .get((req, res) => {
-    res.end(
-      `Will send details of the partner: ${req.params.partnerId} to you`
-    )
+    res.end(`Will send details of the partner: ${req.params.partnerId} to you`)
   })
 
   .put((req, res) => {
@@ -46,9 +44,7 @@ partnerRouter
 
   .post((req, res) => {
     res.statusCode = 403
-    res.end(
-      `POST operation not supported on /partners/${req.params.partnerId}`
-    )
+    res.end(`POST operation not supported on /partners/${req.params.partnerId}`)
   })
 
 module.exports = partnerRouter
