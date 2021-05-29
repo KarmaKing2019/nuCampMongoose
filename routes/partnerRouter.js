@@ -1,50 +1,94 @@
 const express = require('express')
+const Partners = require('../models/partners')
+
 const partnerRouter = express.Router()
 
 partnerRouter
   .route('/')
 
-  .all((req, res, next) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/plain')
-    next()
+  .get((req, res, next) => {
+    Partners.find()
+      .then(campsites => {
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'application/json')
+        res.json(campsites)
+      })
+      .catch(err => next(err))
   })
-  .get((req, res) => {
-    res.end('Will send all the partners to you')
-  })
-  .post((req, res) => {
-    res.end(
-      `Will add the partner: ${req.body.name} with description: ${req.body.description}`
-    )
+  .post((req, res, next) => {
+    Partners.create(req.body)
+      .then(partner => {
+        console.log('Partner Created', partner)
+        res.statusCode = 200
+        res.setHeader('Content-type', 'application/json')
+        res.json(partner)
+      })
+      .catch(err => next(err))
   })
   .put((req, res) => {
     res.statusCode = 403
     res.end('PUT operation not supported on /partners')
   })
-  .delete((req, res) => {
-    res.end('Deleting all partners')
+  .delete((req, res, next) => {
+    Partners.deleteMany()
+      .then(response => {
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'application/json')
+        res.json(response)
+      })
+      .catch(err => next(err))
   })
 
 partnerRouter
   .route('/:partnerId')
 
   .delete((req, res) => {
-    res.end(`Deleting cc partner: ${req.params.partnerId}`)
+    Partners.findByIdAndDelete(req.params.partnerId)
+      .then(response => {
+        res.statusCode = 200
+        res.setHeader('Content-type', 'application/json')
+        res.json(response)
+      })
+      .catch(err => next(err))
   })
 
   .get((req, res) => {
-    res.end(`Will send details of the partner: ${req.params.partnerId} to you`)
+    Partners.findById(req.params.partnerId)
+      .then(partner => {
+        if (partner) {
+          res.statusCode = 200
+          res.setHeader('Content-Type', 'application/json')
+          res.json(partner)
+        } else {
+          err = new Error(`Campsite ${req.params.partnerId} not found!!`)
+          err.status = 404
+          return next(err)
+        }
+      })
+      .catch(err => next(err))
   })
 
   .put((req, res) => {
-    res.write(`Updating the partner: ${req.params.partnerId}\n`)
-    res.end(`Will update the partner: ${req.body.name}
-        with description: ${req.body.description}`)
+    Partners.findByIdAndUpdate(
+      req.params.partnerId,
+      {
+        $set: req.body
+      },
+      { new: true }
+    )
+      .then(partner => {
+        res.statusCode = 200
+        res.setHeader('Content-Type', 'application/json')
+        res.json(partner)
+      })
+      .catch(err => next(err))
   })
 
   .post((req, res) => {
-    res.statusCode = 403
-    res.end(`POST operation not supported on /partners/${req.params.partnerId}`)
+    res.statusCode = 404
+    res.end(
+      `POST operation not supported on /campsites/${req.params.partnerId}`
+    )
   })
 
 module.exports = partnerRouter

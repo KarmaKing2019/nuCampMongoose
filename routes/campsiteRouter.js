@@ -60,7 +60,7 @@ campsiteRouter
 
   .put((req, res, next) => {
     Campsites.findByIdAndUpdate(
-      req.params.campsite,
+      req.params.campsiteId,
       {
         $set: req.body
       },
