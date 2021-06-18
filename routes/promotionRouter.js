@@ -1,12 +1,15 @@
 const express = require('express')
 const Promotions = require('../models/promotion')
+const authenticate = require('../authenticate')
+const cors = require('./cors')
 
 const promotionRouter = express.Router()
 
 promotionRouter
   .route('/')
 
-  .get((req, res, next) => {
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, (req, res, next) => {
     Promotions.find()
       .then(promotions => {
         res.statusCode = 200
@@ -15,7 +18,7 @@ promotionRouter
       })
       .catch(err => next(err))
   })
-  .post((req, res, next) => {
+  .post(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin, (req, res, next) => {
     Promotions.create(req.body)
       .then(promotion => {
         console.log('Partner Created', promotion)
@@ -25,11 +28,11 @@ promotionRouter
       })
       .catch(err => next(err))
   })
-  .put((req, res) => {
+  .put(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin,(req, res) => {
     res.statusCode = 403
     res.end('PUT operation not supported on /promotions')
   })
-  .delete((req, res, next) => {
+  .delete(cors.corsWithOptions,authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Promotions.deleteMany()
       .then(response => {
         res.statusCode = 200
@@ -42,7 +45,7 @@ promotionRouter
 promotionRouter
   .route('/:promotionId')
 
-  .delete((req, res) => {
+  .delete(cors.corsWithOptions,authenticate.verifyUser, authenticate.verifyAdmin,(req, res) => {
     Promotions.findByIdAndDelete(req.params.promotionId)
       .then(response => {
         res.statusCode = 200
@@ -52,7 +55,8 @@ promotionRouter
       .catch(err => next(err))
   })
 
-  .get((req, res) => {
+  .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+  .get(cors.cors, (req, res, next) => {
     Promotions.findById(req.params.promotionId)
       .then(promotion => {
         if (promotion) {
@@ -68,7 +72,7 @@ promotionRouter
       .catch(err => next(err))
   })
 
-  .put((req, res) => {
+  .put(cors.corsWithOptions,authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     Promotions.findByIdAndUpdate(
       req.params.promotionId,
       {
@@ -84,7 +88,7 @@ promotionRouter
       .catch(err => next(err))
   })
 
-  .post((req, res) => {
+  .post(cors.corsWithOptions,authenticate.verifyUser,authenticate.verifyAdmin,(req, res) => {
     res.statusCode = 404
     res.end(
       `POST operation not supported on /campsites/${req.params.promotionId}`

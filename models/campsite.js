@@ -17,8 +17,9 @@ const commentSchema = new Schema(
       required: true
     },
     author: {
+      _id: { type: Schema.Types.ObjectId },
       type: String,
-      required: true
+      ref: 'User'
     }
   },
   {
@@ -62,6 +63,8 @@ const campsiteSchema = new Schema(
   }
 )
 
-const Campsite = mongoose.model('Campsite', campsiteSchema)
+// const Campsite = mongoose.model('Campsite', campsiteSchema)
 
-module.exports = Campsite
+// module.exports = Campsite
+module.exports = mongoose.model('Campsite', campsiteSchema)
+
